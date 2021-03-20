@@ -8,10 +8,13 @@ public class Main {
         String [] arr2 = {"1","2","3","4","5"};
         switchElements (arr1,4,1);
         switchElements (arr2,4,1);
+        // проверка
         System.out.println(Arrays.toString(arr1));
         System.out.println(Arrays.toString(arr2));
+
         System.out.println(castArrayList(arr1));
         System.out.println(castArrayList(arr2));
+
         Box<Apple> box1 = new Box<>();
         Box<Orange> box2 = new Box<>();
         Box<Apple> box3 = new Box<>();
