@@ -42,7 +42,6 @@ public class Main {
         }
     }
     private static void createTable() throws SQLException {
-
         stmt.executeUpdate("CREATE TABLE IF NOT EXISTS productsTable (\n" +
                 "    id    INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
                 "    prodid  TEXT UNIQUE,\n" +
