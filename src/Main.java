@@ -1,45 +1,69 @@
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.sql.*;
 
 public class Main {
-    public static void main (String [] args)
-    {
-        Integer [] arr1 = {1,2,3,4,5};
-        String [] arr2 = {"1","2","3","4","5"};
-        switchElements (arr1,4,1);
-        switchElements (arr2,4,1);
-        System.out.println(Arrays.toString(arr1));
-        System.out.println(Arrays.toString(arr2));
-        System.out.println(castArrayList(arr1));
-        System.out.println(castArrayList(arr2));
-        Box<Apple> box1 = new Box<>();
-        Box<Orange> box2 = new Box<>();
-        Box<Apple> box3 = new Box<>();
-        box1.addFruit(new Apple());
-        box1.addFruit(new Apple());
-        box1.addFruit(new Apple());
-        System.out.println(box1.getWeight());
-        box2.addFruit(new Orange());
-        box2.addFruit(new Orange());
-        System.out.println(box2.getWeight());
-        System.out.println(box1.compare(box2));
-        box1.replace(box3);
-        System.out.println(box3.getWeight());
-        System.out.println(box1.getWeight());
 
-    }
-    public static void switchElements (Object [] arr, int id1, int id2)
-    {
-        Object first = arr [id1];
-        Object second = arr [id2];
-        arr [id1] = second;
-        arr [id2] = first;
-    }
-    public static  <T> ArrayList<T> castArrayList (T [] arr) {
-        ArrayList<T> list = new ArrayList<>();
-        for (T i : arr) {
-            list.add(i);
+    private static Connection connection;
+    private static Statement stmt;
+    private static PreparedStatement ps;
+
+    public static void connect() {
+        try {
+            Class.forName("org.sqlite.JDBC");
+            connection = DriverManager.getConnection("jdbc:sqlite:main.db");
+            stmt = connection.createStatement();
+        } catch (ClassNotFoundException | SQLException e) {
+            e.printStackTrace();
         }
-        return list;
     }
+
+    public static void disconnect() {
+        try {
+            connection.close();
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+
+    public static void main(String[] args) {
+        connect();
+
+        try {
+            createTable();
+            insert ("101", "milk", 60);
+            insert ("10101", "sugar", 80);
+            select(1);
+            deleteRow(1);
+            clearTable();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            disconnect();
+        }
+    }
+    private static void createTable() throws SQLException {
+        stmt.executeUpdate("CREATE TABLE IF NOT EXISTS productsTable (\n" +
+                "    id    INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
+                "    prodid  TEXT UNIQUE,\n" +
+                "    title TEXT,\n" +
+                "    cost INTEGER\n" +
+                ");");
+    }
+    private static void insert (String prodid, String title, int cost) throws SQLException {
+        ps = connection.prepareStatement("INSERT INTO productsTable (prodid, title, cost) VALUES (?, ?, ?);");
+        ps.setString(1, prodid);
+        ps.setString(2, title);
+        ps.setInt(3, cost);
+        ps.executeUpdate();
+    }
+    private static void select(int id) throws SQLException {
+        stmt.executeQuery("SELECT * FROM productsTable WHERE id = " + id + ";");
+    }
+    private static void deleteRow(int id) throws SQLException {
+        stmt.executeUpdate("DELETE FROM productsTable WHERE id = " + id + ";");
+    }
+    private static void clearTable() throws SQLException {
+        stmt.executeUpdate("DELETE FROM productsTable;");
+    }
+
 }
