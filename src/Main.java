@@ -1,69 +1,53 @@
-import java.sql.*;
-
 public class Main {
-
-    private static Connection connection;
-    private static Statement stmt;
-    private static PreparedStatement ps;
-
-    public static void connect() {
-        try {
-            Class.forName("org.sqlite.JDBC");
-            connection = DriverManager.getConnection("jdbc:sqlite:main.db");
-            stmt = connection.createStatement();
-        } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void disconnect() {
-        try {
-            connection.close();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
-    }
-
-
     public static void main(String[] args) {
-        connect();
+        readFile();
+        unionFiles ();
+        readPages ();
 
-        try {
-            createTable();
-            insert ("101", "milk", 60);
-            insert ("10101", "sugar", 80);
-            select(1);
-            deleteRow(1);
-            clearTable();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            disconnect();
+    }
+    public static void readFile ()
+    {
+        BufferedInputStream in = new BufferedInputStream(new FileInputStream("demo.txt"));
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        int x;
+        while ((x = in.read()) != -1) {
+            out.write(x);
         }
+        byte[] arr = out.toByteArray();
+        System.out.println(Arrays.toString(arr));
+        in.close();
+        out.close();
     }
-    private static void createTable() throws SQLException {
-        stmt.executeUpdate("CREATE TABLE IF NOT EXISTS productsTable (\n" +
-                "    id    INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
-                "    prodid  TEXT UNIQUE,\n" +
-                "    title TEXT,\n" +
-                "    cost INTEGER\n" +
-                ");");
+    public static void unionFiles ()
+    {
+        ArrayList<InputStream> al = new ArrayList<>();
+        al.add (new FileInputStream ("1.txt"));
+        al.add (new FileInputStream ("2.txt"));
+        al.add (new FileInputStream ("3.txt"));
+        al.add (new FileInputStream ("4.txt"));
+        al.add (new FileInputStream ("5.txt"));
+        SequenceInputStream in = new SequenceInputStream(Collections.enumeraton (al));
+        ByteArrayOutputStream out = new ByteArrayOutputStream("nubers.txt");
+        int x;
+        while ((x = in.read()) != -1) {
+            System.out.println((char) x);
+        }
+        in.close();
+        out.close();
     }
-    private static void insert (String prodid, String title, int cost) throws SQLException {
-        ps = connection.prepareStatement("INSERT INTO productsTable (prodid, title, cost) VALUES (?, ?, ?);");
-        ps.setString(1, prodid);
-        ps.setString(2, title);
-        ps.setInt(3, cost);
-        ps.executeUpdate();
-    }
-    private static void select(int id) throws SQLException {
-        stmt.executeQuery("SELECT * FROM productsTable WHERE id = " + id + ";");
-    }
-    private static void deleteRow(int id) throws SQLException {
-        stmt.executeUpdate("DELETE FROM productsTable WHERE id = " + id + ";");
-    }
-    private static void clearTable() throws SQLException {
-        stmt.executeUpdate("DELETE FROM productsTable;");
-    }
+    public static void readPages ()
+    {
+        int pageSize =  1800;
+        RandomAccessFile file = new RandomAccessFile("book.txt", "r");
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Введите номер страницу ");
+        int pageNumber = sc.nextInt - 1;
+        file.seek(pageNumber * pageSize);
+        byte[] arr = new byte[1800];
+        file.read(arr);
+        System.out.println(Arrays.toString(arr));
+        file.close();
 
+    }
 }
+
